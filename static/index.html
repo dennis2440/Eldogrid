@@ -3,17 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EldoGrid AI Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>EldoGrid AI: City Command Dashboard</title>
+  <!-- Libraries are vendored locally (static/vendor) so the dashboard still loads if venue Wi-Fi dies.
+       Only the map's background tiles need internet. -->
+  <link rel="stylesheet" href="/static/vendor/leaflet.css">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="bg-slate-50 p-6">
-  <h1 class="text-2xl font-bold">EldoGrid AI</h1>
-  <p class="text-slate-600 mb-4">M2: replace this page with the Leaflet map and Chart.js dashboard.</p>
-  <pre id="out" class="bg-white p-4 rounded shadow text-sm">loading...</pre>
-  <script>
-    fetch('/dashboard/stats').then(r => r.json()).then(d => {
-      document.getElementById('out').textContent = JSON.stringify(d, null, 2);
-    });
-  </script>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>EldoGrid AI</h1>
+      <p class="subtitle">Eldoret City Command Dashboard &middot; waste &rarr; compost &rarr; farmers &rarr; climate</p>
+    </div>
+    <div id="status-pill" class="pill pill-wait">Connecting...</div>
+  </header>
+
+  <div id="alert-banner" class="alert alert-none">Checking weather alerts...</div>
+
+  <section class="stats" aria-label="Key numbers">
+    <div class="card stat"><span class="stat-label">Waste collected</span><span class="stat-value" id="stat-total">-</span><span class="stat-unit">kg</span></div>
+    <div class="card stat"><span class="stat-label">Organic waste</span><span class="stat-value" id="stat-organic">-</span><span class="stat-unit">kg</span></div>
+    <div class="card stat"><span class="stat-label">Compost ready</span><span class="stat-value" id="stat-ready">-</span><span class="stat-unit">kg</span></div>
+    <div class="card stat"><span class="stat-label">Compost curing</span><span class="stat-value" id="stat-pipeline">-</span><span class="stat-unit">kg</span></div>
+    <div class="card stat"><span class="stat-label">Orders paid / pending</span><span class="stat-value" id="stat-orders">-</span><span class="stat-unit">orders</span></div>
+    <div class="card stat"><span class="stat-label">Active alerts (24h)</span><span class="stat-value" id="stat-alerts">-</span><span class="stat-unit">alerts</span></div>
+  </section>
+
+  <main class="layout">
+    <div class="col-main">
+      <section class="card">
+        <div class="card-head">
+          <h2>Waste reports across Eldoret</h2>
+          <div class="legend">
+            <span><i style="background:#16a34a"></i>70%+ organic</span>
+            <span><i style="background:#f59e0b"></i>50-69%</span>
+            <span><i style="background:#dc2626"></i>under 50%</span>
+          </div>
+        </div>
+        <div id="map" role="img" aria-label="Map of waste reports in Eldoret"></div>
+        <p id="map-note" class="note hidden">Map background needs internet. Markers still show without it.</p>
+        <ul id="report-list" class="reports"></ul>
+      </section>
+
+      <section class="charts">
+        <div class="card"><h2>Waste by estate (kg)</h2><div class="chart-box"><canvas id="waste-chart"></canvas></div></div>
+        <div class="card"><h2>Compost stock (kg)</h2><div class="chart-box"><canvas id="compost-chart"></canvas></div></div>
+      </section>
+    </div>
+
+    <aside class="col-side">
+      <section class="card">
+        <h2>Report a waste heap</h2>
+        <form id="upload-form" novalidate>
+          <label for="photo">Photo of the waste</label>
+          <input id="photo" name="image" type="file" accept="image/*">
+          <img id="preview" class="preview hidden" alt="Preview of the chosen photo">
+
+          <label for="estate">Estate</label>
+          <select id="estate" name="estate"></select>
+
+          <label for="est-kg">Estimated weight (kg)</label>
+          <input id="est-kg" name="est_kg" type="number" min="1" step="1" value="100">
+
+          <button id="submit-btn" type="submit" class="btn">Analyse waste</button>
+        </form>
+        <div id="upload-result" class="result hidden" aria-live="polite"></div>
+      </section>
+
+      <section class="card">
+        <h2>Farmer's phone (SMS)</h2>
+        <div class="phone">
+          <div class="phone-top">Messages</div>
+          <div id="sms-list" class="sms-list"><p class="muted">No messages yet</p></div>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">Press <kbd>D</kbd> for demo controls &middot; payments are simulated &middot; times shown in Kenya time</footer>
+
+  <aside id="demo-panel" class="demo hidden" aria-label="Demo controls">
+    <h3>Demo controls <small>(press D to hide)</small></h3>
+    <button class="btn btn-demo" id="demo-rain">Simulate heavy rain</button>
+    <button class="btn btn-demo" id="demo-pay">Simulate M-Pesa payment</button>
+    <button class="btn btn-demo" id="demo-ready">Mark 100 kg compost ready</button>
+    <button class="btn btn-demo btn-danger" id="demo-reset">Reset demo data</button>
+  </aside>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <noscript>This dashboard needs JavaScript.</noscript>
+  <script src="/static/vendor/leaflet.js"></script>
+  <script src="/static/vendor/chart.umd.js"></script>
+  <script src="/static/app.js"></script>
 </body>
 </html>
