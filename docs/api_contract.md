@@ -7,7 +7,7 @@ This is the single source of truth for request and response shapes. Frontend, te
 - Base URL: `http://localhost:8000` locally, `PUBLIC_BASE_URL` when deployed.
 - JSON in, JSON out, except `/ussd` (form in, plain text out).
 - Phones are stored as `2547XXXXXXXX` (no `+`).
-- Timestamps are ISO 8601 strings: `2026-10-05T08:30:00`.
+- Timestamps are ISO 8601 strings in **UTC**: `2026-10-05T08:30:00`. Kenya is UTC+3, so the dashboard should add 3 hours when displaying times.
 - Errors: HTTP 4xx/5xx with `{"error": "short message"}`.
 - Money is in KES as numbers (`450`, not `"KES 450"`).
 - `DEMO_MODE=true` means every external call (Roboflow, Open-Meteo, Africa's Talking) returns canned data instead.
@@ -67,6 +67,12 @@ Response `200`: array of markers (same shape as `/dashboard/markers`).
 }
 ```
 `compost_ready_kg` is what can be ordered now. `compost_pipeline_kg` is still curing.
+
+### `GET /dashboard/estates`
+For the upload form's estate dropdown.
+```json
+[{"name": "Langas", "lat": 0.5, "lon": 35.29}]
+```
 
 ### `GET /dashboard/alerts`
 Array of alerts (same shape as the alert object in section 3).
@@ -135,7 +141,7 @@ Farm advice must include the rain check: if `rain_mm_next_48h >= 50`, add "Heavy
 ## 5. SMS (owner: M4)
 
 ### `GET /sms/outbox`
-Last 20 messages sent. Powers the "fake phone" panel on the dashboard.
+Last 20 messages sent. Powers the "fake phone" panel on the dashboard. `sent_at` is UTC like every other timestamp.
 ```json
 [{"to": "254700000001", "message": "Order confirmed. Receipt QWE1R2T3Y4", "sent_at": "2026-10-05T11:02:10", "mode": "demo"}]
 ```
@@ -182,7 +188,22 @@ Hidden panel on the dashboard (toggle with a key such as `D`), with buttons:
 
 - **Simulate rain** calls `POST /climate/alert/trigger`
 - **Simulate M-Pesa payment** calls `POST /mock/mpesa/callback` for the latest pending payment
-- **Reset demo data**: run `python -m app.db.seed` (or add a `POST /admin/reset` endpoint)
+- **Reset demo data** calls `POST /admin/reset`
+- **Mark compost ready** calls `POST /admin/mark-ready` with `{"kg": 100}`
+
+## 8. Admin / demo controls (owner: M1)
+
+Not secured (prototype only).
+
+### `POST /admin/mark-ready`
+Pretend curing finished. Request: `{"kg": 100}`. Response:
+```json
+{"moved_kg": 100, "ready_kg": 220.0, "pipeline_kg": 570.0}
+```
+`moved_kg` can be less than requested if the pipeline holds less. Invalid input returns `400 {"error": "..."}`.
+
+### `POST /admin/reset`
+Re-seeds the database and clears the SMS outbox. Response: `{"status": "reset"}`
 
 ## Changing this contract
 
