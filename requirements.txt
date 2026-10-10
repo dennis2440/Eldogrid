@@ -6,3 +6,4 @@ requests
 africastalking
 scikit-learn
 joblib
+inference-sdk
