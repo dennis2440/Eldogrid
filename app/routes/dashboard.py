@@ -1,21 +1,28 @@
-"""M1: JSON for the dashboard (map markers, stats, alerts)."""
+"""M1: JSON for the dashboard. Real data from the database, in the shapes of docs/api_contract.md."""
 from fastapi import APIRouter
 
-from app import fixtures
+from app.db import queries
+from app.services.estates import ESTATES
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
 @router.get("/markers")
 def markers():
-    return fixtures.MARKERS      # TODO(M1): read from waste_reports
+    return queries.list_waste_reports()
 
 
 @router.get("/stats")
 def stats():
-    return fixtures.STATS        # TODO(M1): compute from DB
+    return queries.get_stats()
 
 
 @router.get("/alerts")
 def alerts():
-    return [fixtures.ALERT]      # TODO(M1): read from climate_alerts
+    return queries.list_alerts()
+
+
+@router.get("/estates")
+def estates():
+    """For the upload form's estate dropdown."""
+    return [{"name": n, "lat": lat, "lon": lon} for n, (lat, lon) in ESTATES.items()]
