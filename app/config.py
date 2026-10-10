@@ -19,6 +19,7 @@ AT_USERNAME = os.getenv("AT_USERNAME", "sandbox")
 AT_API_KEY = os.getenv("AT_API_KEY", "")
 AT_SENDER_ID = os.getenv("AT_SENDER_ID", "")
 
+ROBOFLOW_API_URL = os.getenv("ROBOFLOW_API_URL", "https://serverless.roboflow.com")
 ROBOFLOW_API_KEY = os.getenv("ROBOFLOW_API_KEY", "")
 ROBOFLOW_MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID", "")
 
