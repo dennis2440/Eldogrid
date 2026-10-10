@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.db.database import init_db
-from app.routes import climate, dashboard, payments, sms, ussd, waste
+from app.routes import admin, climate, dashboard, payments, sms, ussd, waste
 
 
 @asynccontextmanager
@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="EldoGrid AI", lifespan=lifespan)
 
-for module in (waste, climate, ussd, sms, payments, dashboard):
+for module in (waste, climate, ussd, sms, payments, dashboard, admin):
     app.include_router(module.router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
