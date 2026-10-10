@@ -1,6 +1,6 @@
 """M4: send SMS. Every message goes to OUTBOX (the dashboard 'phone screen' reads it).
 Only when DEMO_MODE=false do we ALSO send through Africa's Talking."""
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.config import AT_API_KEY, AT_SENDER_ID, AT_USERNAME, DEMO_MODE
 from app.services.phone import normalize_phone
@@ -13,7 +13,7 @@ def send_sms(to: str, message: str) -> dict:
     entry = {
         "to": to,
         "message": message,
-        "sent_at": datetime.now().isoformat(timespec="seconds"),
+        "sent_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"),
         "mode": "demo" if DEMO_MODE else "live",
     }
     OUTBOX.append(entry)
