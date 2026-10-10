@@ -111,10 +111,15 @@ Response: `text/plain`, always starting with `CON ` (continue) or `END ` (finish
 | `text` | Meaning |
 |---|---|
 | `` (empty) | Show main menu |
-| `1` | Farm advice |
-| `2*1*50` | Order compost, option 1, 50 kg |
+| `1` | Farm advice (asks crop and soil only the first time) |
+| `1*1*2` | First-time advice: crop option 1 (maize), soil option 2 (clay) |
+| `2` | Order compost: asks for kg |
+| `2*50` | 50 kg chosen: asks payment method |
+| `2*50*1` | Pay from wallet |
+| `2*50*2` | Pay via M-Pesa (mock) |
 | `3*500` | Top up wallet with KES 500 |
 | `4` | Check balance |
+| `5*2` | Switch language to Kiswahili (`5*1` = English) |
 
 Main menu:
 ```
@@ -123,6 +128,7 @@ CON Welcome to EldoGrid
 2. Order compost
 3. Top up wallet
 4. Check balance
+5. Language
 ```
 Farm advice must include the rain check: if `rain_mm_next_48h >= 50`, add "Heavy rain in 48h: delay top-dressing."
 
